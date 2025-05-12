@@ -1,0 +1,348 @@
+.safeArea {
+  flex: 1;
+  background-color: #F8F9FA;
+}
+
+.scrollView {
+  flex: 1;
+  background-color: #F8F9FA;
+}
+
+.container {
+  flex: 1;
+}
+
+.headerGradient {
+  padding-top: 60px;
+  padding-bottom: 30px;
+  border-bottom-left-radius: 30px;
+  border-bottom-right-radius: 30px;
+  margin-bottom: 80px;
+}
+
+.headerContent {
+  align-items: center;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.avatarContainer {
+  margin-bottom: 16px;
+  border-width: 3px;
+  border-color: white;
+  border-radius: 50px;
+  padding: 3px;
+}
+
+.avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 45px;
+  border-width: 3px;
+  border-color: white;
+}
+
+.headerName {
+  color: #FFFFFF;
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.headerEmail {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+
+.headerLogoutButton {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.2);
+  padding-top: 10px;
+  padding-bottom: 10px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 25px;
+  margin-top: 5px;
+}
+
+.headerLogoutText {
+  color: #FFF;
+  font-size: 14px;
+  font-weight: 600;
+  margin-right: 6px;
+}
+
+.settingsButton {
+  position: absolute;
+  top: 0px;
+  right: 0px;
+  padding: 10px;
+}
+
+.statsContainer {
+  flex-direction: row;
+  justify-content: space-evenly;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-top: -50px;
+}
+
+.statCard {
+  background-color: #FFFFFF;
+  border-radius: 15px;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  padding-left: 20px;
+  padding-right: 20px;
+  align-items: center;
+  width: 28%;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.statValue {
+  font-size: 20px;
+  font-weight: bold;
+  color: #0575E6;
+}
+
+.statLabel {
+  font-size: 14px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.bmiCard {
+  background-color: #FFFFFF;
+  border-radius: 20px;
+  padding: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.bmiTitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
+
+.bmiValue {
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.bmiCategory {
+  font-size: 15px;
+  font-weight: 500;
+  margin-bottom: 15px;
+}
+
+.bmiScale {
+  position: relative;
+  margin-top: 10px;
+  height: 40px;
+}
+
+.bmiRanges {
+  height: 8px;
+  border-radius: 4px;
+  flex-direction: row;
+}
+
+.bmiRange {
+  flex: 1;
+}
+
+.bmiIndicator {
+  position: absolute;
+  top: -5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background-color: #FFFFFF;
+  border-width: 3px;
+  border-color: #0575E6;
+  margin-left: -8px;
+  z-index: 1;
+}
+
+.bmiLabels {
+  position: relative;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 5px;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.bmiLabel {
+  color: #666;
+  font-size: 12px;
+}
+
+.card {
+  background-color: #FFFFFF;
+  border-radius: 20px;
+  padding: 20px;
+  margin-left: 20px;
+  margin-right: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.editableField {
+  flex-direction: row;
+  align-items: center;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  border-bottom-width: 1px;
+  border-bottom-color: #F0F0F0;
+}
+
+.fieldIconContainer {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  background-color: rgba(5, 117, 230, 0.1);
+  align-items: center;
+  justify-content: center;
+  margin-right: 14px;
+}
+
+.fieldContent {
+  flex: 1;
+}
+
+.fieldLabel {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.fieldValue {
+  font-size: 16px;
+  font-weight: 500;
+  color: #333;
+}
+
+.caloriesCard {
+  flex-direction: row;
+  background-color: #F8F9FA;
+  border-radius: 15px;
+  padding: 20px;
+  margin-top: 15px;
+  align-items: center;
+}
+
+.caloriesContent {
+  flex: 1;
+}
+
+.caloriesTitle {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.caloriesValue {
+  font-size: 26px;
+  font-weight: bold;
+  color: #333;
+}
+
+.caloriesUnit {
+  font-size: 14px;
+  color: #888;
+  margin-top: 2px;
+}
+
+.caloriesIcon {
+  margin-left: 10px;
+}
+
+.bottomSpacer {
+  height: 80px; 
+}
+
+.center {
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.errorText {
+  color: #FF6A88;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.modalOverlay {
+  flex: 1;
+  justify-content: center;
+  align-items: center;
+}
+
+.modalContainer {
+  width: 85%;
+  background-color: #FFF;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.modalTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.input {
+  width: 100%;
+  border-width: 1px;
+  border-color: #E5E5E5;
+  border-radius: 15px;
+  padding: 16px;
+  margin-bottom: 20px;
+  font-size: 16px;
+  background-color: #F8F9FA;
+}
+
+.modalButtons {
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modalButton {
+  flex: 1;
+  padding-top: 16px;
+  padding-bottom: 16px;
+  border-radius: 15px;
+  align-items: center;
+}
+
+.cancelButton {
+  background-color: #F1F1F1;
+}
+
+.cancelText {
+  color: #666;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.saveButton {
+  background-color: #0575E6;
+}
+
+.saveText {
+  color: #FFF;
+  font-size: 16px;
+  font-weight: 600;
+}
