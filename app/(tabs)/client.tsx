@@ -1,4 +1,4 @@
-"use client";
+"";
 
 import { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';

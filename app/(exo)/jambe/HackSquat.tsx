@@ -1,7 +1,7 @@
-"use client";
+"";
 
 import React from 'react';
-import Link from 'next/link';
+import { Link } from 'expo-router';
 import { ArrowLeft } from 'lucide-react';
 
 export default function HackSquat() {

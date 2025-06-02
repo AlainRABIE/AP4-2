@@ -12,9 +12,11 @@
       "supportsTablet": true,
       "infoPlist": {
         "UIBackgroundModes": [
+          "remote-notification",
           "remote-notification"
         ]
-      }
+      },
+      "bundleIdentifier": "com.alainrabie.AP4Calories"
     },
     "android": {
       "adaptiveIcon": {

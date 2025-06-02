@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Image, ActivityIndicator } from 'react-native';
 import { router } from 'expo-router';
 import { collection, getDocs, getFirestore } from 'firebase/firestore'; 
-import app from '../../firebase/firebaseConfig';
+import app from '@/firebase/firebaseConfig';
 
 const db = getFirestore(app);
 

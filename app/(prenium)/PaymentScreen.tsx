@@ -1,17 +1,38 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert, ActivityIndicator, SafeAreaView, Image } from 'react-native';
-import { CardField, useStripe, CardFieldInput, initStripe } from '@stripe/stripe-react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { STRIPE_PUBLISHABLE_KEY } from '../../config/stripe';
-import { getAuth } from 'firebase/auth';
-import { getFirestore, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
-import app from '../../firebase/firebaseConfig'; 
+import { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Alert,
+  ActivityIndicator,
+  SafeAreaView,
+  Image,
+} from "react-native";
+import {
+  CardField,
+  useStripe,
+  CardFieldInput,
+  initStripe,
+} from "@stripe/stripe-react-native";
+import { router, useLocalSearchParams } from "expo-router";
+// import { STRIPE_PUBLISHABLE_KEY } from '../../config/stripe';
+import { getAuth } from "firebase/auth";
+import {
+  getFirestore,
+  doc,
+  updateDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import app from "../../firebase/firebaseConfig";
 
 export default function PaymentScreen() {
   const { createPaymentMethod, confirmPayment } = useStripe();
   const [loading, setLoading] = useState(false);
-  const [cardDetails, setCardDetails] = useState<CardFieldInput.Details | null>(null);
-  
+  const [cardDetails, setCardDetails] = useState<CardFieldInput.Details | null>(
+    null
+  );
+
   const auth = getAuth(app);
   const db = getFirestore(app);
 
@@ -21,39 +42,42 @@ export default function PaymentScreen() {
   const planPeriod = params.planPeriod as string;
 
   useEffect(() => {
-    initStripe({
-      publishableKey: STRIPE_PUBLISHABLE_KEY,
-      merchantIdentifier: 'merchant.com.votre.app',
-    });
+    // initStripe({
+    //   publishableKey: STRIPE_PUBLISHABLE_KEY,
+    //   merchantIdentifier: 'merchant.com.votre.app',
+    // });
   }, []);
 
   const updateUserSubscription = async () => {
     try {
       const user = auth.currentUser;
       if (!user) {
-        throw new Error('Utilisateur non connecté');
+        throw new Error("Utilisateur non connecté");
       }
 
       console.log(`Mise à jour de l'abonnement vers: ${planName}`);
-      
-      const userRef = doc(db, 'utilisateurs', user.uid);
+
+      const userRef = doc(db, "utilisateurs", user.uid);
       await updateDoc(userRef, {
-        abonnement: planName, 
+        abonnement: planName,
         derniereModification: serverTimestamp(),
-        dateModification: serverTimestamp()
+        dateModification: serverTimestamp(),
       });
 
       console.log(`Abonnement mis à jour avec succès vers: ${planName}`);
       return true;
     } catch (error) {
-      console.error('Erreur lors de la mise à jour de l\'abonnement:', error);
+      console.error("Erreur lors de la mise à jour de l'abonnement:", error);
       throw error;
     }
   };
 
   const handlePayment = async () => {
     if (!cardDetails?.complete) {
-      Alert.alert('Information incomplète', 'Veuillez remplir toutes les informations de carte bancaire');
+      Alert.alert(
+        "Information incomplète",
+        "Veuillez remplir toutes les informations de carte bancaire"
+      );
       return;
     }
 
@@ -61,10 +85,10 @@ export default function PaymentScreen() {
       setLoading(true);
 
       const { paymentMethod, error } = await createPaymentMethod({
-        paymentMethodType: 'Card',
+        paymentMethodType: "Card",
         paymentMethodData: {
           billingDetails: {
-            name: 'Utilisateur Premium',
+            name: "Utilisateur Premium",
           },
         },
       });
@@ -73,32 +97,36 @@ export default function PaymentScreen() {
         throw new Error(error.message);
       }
 
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
       await updateUserSubscription();
 
       Alert.alert(
-        'Paiement réussi!',
-        'Votre abonnement premium est maintenant actif.',
+        "Paiement réussi!",
+        "Votre abonnement premium est maintenant actif.",
         [
           {
-            text: 'OK',
+            text: "OK",
             onPress: () => {
               router.push({
-                pathname: '/(prenium)/CheckoutScreen',
+                pathname: "/(prenium)/CheckoutScreen",
                 params: {
                   planName: planName,
                   planPrice: planPrice,
-                  planPeriod: planPeriod
-                }
+                  planPeriod: planPeriod,
+                },
               });
-            }
-          }
+            },
+          },
         ]
       );
-
     } catch (error) {
-      Alert.alert('Erreur de paiement', error instanceof Error ? error.message : 'Une erreur inconnue est survenue');
+      Alert.alert(
+        "Erreur de paiement",
+        error instanceof Error
+          ? error.message
+          : "Une erreur inconnue est survenue"
+      );
     } finally {
       setLoading(false);
     }
@@ -111,13 +139,12 @@ export default function PaymentScreen() {
       <View style={styles.planCard}>
         <Text style={styles.planTitle}>{planName}</Text>
         <Text style={styles.planPrice}>
-          {Number(planPrice).toFixed(2).replace('.', ',')} € 
+          {Number(planPrice).toFixed(2).replace(".", ",")} €
           <Text style={styles.planPeriod}>/ {planPeriod}</Text>
         </Text>
         <Text style={styles.planDescription}>
-          • Accès à toutes les fonctionnalités{'\n'}
-          • Support premium{'\n'}
-          • Sans publicités
+          • Accès à toutes les fonctionnalités{"\n"}• Support premium{"\n"}•
+          Sans publicités
         </Text>
       </View>
 
@@ -125,9 +152,11 @@ export default function PaymentScreen() {
         <Text style={styles.sectionTitle}>Informations de paiement</Text>
 
         <View style={styles.secureInfo}>
-          <Image 
-            source={{ uri: 'https://cdn-icons-png.flaticon.com/512/2913/2913658.png' }} 
-            style={styles.lockIcon} 
+          <Image
+            source={{
+              uri: "https://cdn-icons-png.flaticon.com/512/2913/2913658.png",
+            }}
+            style={styles.lockIcon}
           />
           <Text style={styles.secureText}>Paiement sécurisé via Stripe</Text>
         </View>
@@ -135,9 +164,9 @@ export default function PaymentScreen() {
         <CardField
           postalCodeEnabled={true}
           placeholders={{
-            number: '4242 4242 4242 4242',
-            expiration: 'MM/AA',
-            cvc: 'CVC',
+            number: "4242 4242 4242 4242",
+            expiration: "MM/AA",
+            cvc: "CVC",
           }}
           cardStyle={styles.cardStyle}
           style={styles.cardField}
@@ -145,8 +174,11 @@ export default function PaymentScreen() {
         />
       </View>
 
-      <TouchableOpacity 
-        style={[styles.payButton, !cardDetails?.complete && styles.payButtonDisabled]} 
+      <TouchableOpacity
+        style={[
+          styles.payButton,
+          !cardDetails?.complete && styles.payButtonDisabled,
+        ]}
         onPress={handlePayment}
         disabled={loading || !cardDetails?.complete}
       >
@@ -158,8 +190,9 @@ export default function PaymentScreen() {
       </TouchableOpacity>
 
       <Text style={styles.termsText}>
-        En effectuant ce paiement, vous acceptez nos Conditions d'utilisation et notre Politique de confidentialité.
-        Votre abonnement sera automatiquement renouvelé chaque mois jusqu'à annulation.
+        En effectuant ce paiement, vous acceptez nos Conditions d'utilisation et
+        notre Politique de confidentialité. Votre abonnement sera
+        automatiquement renouvelé chaque mois jusqu'à annulation.
       </Text>
     </SafeAreaView>
   );
@@ -169,57 +202,57 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: "#FFFFFF",
   },
   title: {
     fontSize: 24,
-    fontWeight: 'bold',
+    fontWeight: "bold",
     marginBottom: 20,
-    textAlign: 'center',
-    color: '#1E293B',
+    textAlign: "center",
+    color: "#1E293B",
   },
   planCard: {
-    backgroundColor: '#F8FAFC',
+    backgroundColor: "#F8FAFC",
     borderRadius: 12,
     padding: 20,
     marginBottom: 24,
     borderWidth: 1,
-    borderColor: '#E2E8F0',
+    borderColor: "#E2E8F0",
   },
   planTitle: {
     fontSize: 18,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 8,
-    color: '#1E293B',
+    color: "#1E293B",
   },
   planPrice: {
     fontSize: 24,
-    fontWeight: 'bold',
-    color: '#0EA5E9',
+    fontWeight: "bold",
+    color: "#0EA5E9",
     marginBottom: 16,
   },
   planPeriod: {
     fontSize: 14,
-    color: '#64748B',
-    fontWeight: 'normal',
+    color: "#64748B",
+    fontWeight: "normal",
   },
   planDescription: {
     fontSize: 14,
     lineHeight: 22,
-    color: '#475569',
+    color: "#475569",
   },
   cardContainer: {
     marginBottom: 24,
   },
   sectionTitle: {
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
     marginBottom: 16,
-    color: '#1E293B',
+    color: "#1E293B",
   },
   secureInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 12,
   },
   lockIcon: {
@@ -229,40 +262,39 @@ const styles = StyleSheet.create({
   },
   secureText: {
     fontSize: 13,
-    color: '#64748B',
+    color: "#64748B",
   },
   cardField: {
-    width: '100%',
+    width: "100%",
     height: 50,
     marginVertical: 8,
   },
   cardStyle: {
-    backgroundColor: '#F8FAFC',
-    color: '#1E293B',
+    backgroundColor: "#F8FAFC",
+    color: "#1E293B",
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#CBD5E1',
+    borderColor: "#CBD5E1",
   },
   payButton: {
-    backgroundColor: '#0EA5E9',
+    backgroundColor: "#0EA5E9",
     borderRadius: 8,
     padding: 16,
-    alignItems: 'center',
+    alignItems: "center",
     marginBottom: 16,
   },
   payButtonDisabled: {
-    backgroundColor: '#CBD5E1',
+    backgroundColor: "#CBD5E1",
   },
   payButtonText: {
-    color: '#FFFFFF',
+    color: "#FFFFFF",
     fontSize: 16,
-    fontWeight: '600',
+    fontWeight: "600",
   },
   termsText: {
     fontSize: 12,
-    color: '#94A3B8',
-    textAlign: 'center',
+    color: "#94A3B8",
+    textAlign: "center",
     lineHeight: 18,
-  }
+  },
 });
-

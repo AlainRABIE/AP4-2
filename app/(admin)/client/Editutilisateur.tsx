@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,6 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-  Platform,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -31,7 +30,7 @@ interface User {
   role?: string;
 }
 
-export default function EditUtilisateur() {
+ function EditUtilisateur() {
   const { id } = useLocalSearchParams();
   const router = useRouter();
   const [user, setUser] = useState<User | null>(null);
@@ -438,3 +437,5 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   }
 });
+
+export default EditUtilisateur;
