@@ -4,15 +4,18 @@ import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { Pedometer } from 'expo-sensors';
 import { auth } from '../../firebase/firebaseConfig';
 import { useRouter } from 'expo-router';
+import { getFirestore, doc, getDoc } from 'firebase/firestore';
 
 export default function Settings() {
   const router = useRouter();
   const [connectedDevices, setConnectedDevices] = useState<string[]>([]);
   const [isPedometerAvailable, setIsPedometerAvailable] = useState<boolean>(false);
   const [stepCount, setStepCount] = useState<number>(0);
+  const [objectifPas, setObjectifPas] = useState<number | null>(null);
 
   useEffect(() => {
     checkPedometerPermission();
+    fetchObjectifPas();
   }, []);
 
   const sendCoachRequest = async () => {
@@ -75,6 +78,20 @@ export default function Settings() {
     }
   };
 
+  const fetchObjectifPas = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) return;
+      const db = getFirestore();
+      const userDoc = await getDoc(doc(db, 'utilisateurs', user.uid));
+      if (userDoc.exists()) {
+        setObjectifPas(userDoc.data().ObjectifPas || 0);
+      }
+    } catch (e) {
+      setObjectifPas(0);
+    }
+  };
+
   const handleConnectDevice = (deviceType: string) => {
     Alert.alert(
       'Connexion appareil',
@@ -95,6 +112,45 @@ export default function Settings() {
     );
   };
 
+  const handleDeleteAccount = async () => {
+    try {
+      const user = auth.currentUser;
+      if (!user) {
+        Alert.alert("Erreur", "Aucun utilisateur connecté.");
+        return;
+      }
+      Alert.alert(
+        "Suppression du compte",
+        "Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.",
+        [
+          { text: "Annuler", style: "cancel" },
+          {
+            text: "Supprimer",
+            style: "destructive",
+            onPress: async () => {
+              try {
+                await user.delete();
+                Alert.alert("Compte supprimé", "Votre compte a bien été supprimé.");
+                router.replace("/login");
+              } catch (error: any) {
+                if (error.code === 'auth/requires-recent-login') {
+                  Alert.alert(
+                    "Erreur de sécurité",
+                    "Votre session a expiré. Veuillez simplement vous reconnecter en relançant l'application, puis réessayez de supprimer votre compte."
+                  );
+                } else {
+                  Alert.alert("Erreur", error.message || "Impossible de supprimer le compte.");
+                }
+              }
+            }
+          }
+        ]
+      );
+    } catch (error) {
+      Alert.alert("Erreur", "Impossible de supprimer le compte.");
+    }
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -111,14 +167,8 @@ export default function Settings() {
             <MaterialIcons name="person" size={24} color="#3b82f6" />
             <Text style={styles.sectionTitle}>Mon compte</Text>
           </View>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Informations personnelles</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Plan nutritionnel</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Premium</Text>
+          <TouchableOpacity style={styles.button} onPress={handleDeleteAccount}>
+            <Text style={[styles.buttonText, { color: '#ef4444' }]}>Supprimer mon compte</Text>
           </TouchableOpacity>
         </View>
 
@@ -143,21 +193,11 @@ export default function Settings() {
             <FontAwesome name="balance-scale" size={24} color="#22c55e" />
             <Text style={styles.sectionTitle}>Objectifs & Suivi</Text>
           </View>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Objectif de poids</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Besoins caloriques</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Répartition des macros</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Aliments favoris</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Mes recettes</Text>
-          </TouchableOpacity>
+          <View style={{ alignItems: 'center', marginTop: 8 }}>
+            <Text style={{ fontSize: 16, color: '#333' }}>Objectif de pas quotidien :</Text>
+            <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#22c55e', marginTop: 4 }}>{objectifPas !== null ? objectifPas : '...'}</Text>
+            <Text style={{ fontSize: 14, color: '#666', marginTop: 2 }}>pas</Text>
+          </View>
         </View>
 
         <View style={styles.section}>
@@ -224,15 +264,6 @@ export default function Settings() {
             <MaterialIcons name="help" size={24} color="#6b7280" />
             <Text style={styles.sectionTitle}>Support</Text>
           </View>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Guide d'utilisation</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Contactez-nous</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button}>
-            <Text style={styles.buttonText}>Confidentialité</Text>
-          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>
