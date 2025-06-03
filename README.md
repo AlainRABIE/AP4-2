@@ -11,5 +11,9 @@ Mots de passe : coach123
 
 
 FEATURE DISPO :
+Modifiée niveau d'activitée / Modifiée objectif de pas / Enregistrée nombre de pas effectuée / Modifiée les info du client/ Affichée les information des repas 
+
+
+
 DELETE LE COMPTE
 NE PAS POUVOIR PRENDRE RENDEZ VOUS POUR UNE DATE ANTÉRIEUR                 A FAIRE
