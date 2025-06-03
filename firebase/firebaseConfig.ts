@@ -18,7 +18,7 @@ if (getApps().length === 0) {
 } else {
   app = getApps()[0];
 }
-
+//test
 let auth:Auth;
 try {
   auth = getAuth(app);
