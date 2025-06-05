@@ -12,7 +12,7 @@ Mots de passe : coach123
 
 FEATURE DISPO :
    -  Bloquée les lettre dans poids taille est age
-   - modifiée le Niveau d'activité     OK
+   - modifiée le Niveau d'activité     NON
    - Modifiée l'objectif des pas         OK  
    -  Enregistrée le niveau d'eau bue  SIMPLE
    -  Enregistrée les pas
