@@ -11,9 +11,14 @@ Mots de passe : coach123
 
 
 FEATURE DISPO :
-Modifiée niveau d'activitée / Modifiée objectif de pas / Enregistrée nombre de pas effectuée / Modifiée les info du client/ Affichée les information des repas 
+   -  Bloquée les lettre dans poids taille est age
+   - modifiée le Niveau d'activité     OK
+   - Modifiée l'objectif des pas         OK  
+   -  Enregistrée le niveau d'eau bue  SIMPLE
+   -  Enregistrée les pas
+   -  Crée une page de reglementation etc pour le rgpd
+   -  Mettre un selectbox pour le niveau d'activitée et pas pouvoir entrée des truc
+   -  Modifiée les infos du profil (Age, Taille etc...)  OK
+   -  Delete Compte
+   -  Affichée un i pour affichée les aliments du repas  OK
 
-
-
-DELETE LE COMPTE
-NE PAS POUVOIR PRENDRE RENDEZ VOUS POUR UNE DATE ANTÉRIEUR                 A FAIRE
