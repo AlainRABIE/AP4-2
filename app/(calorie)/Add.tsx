@@ -16,9 +16,22 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { TextInput } from "react-native-paper";
+
+
 import { takePhoto, pickImage, addMeal, MealData } from "../../services/calorie";
 
+// Types pour Open Food Facts
+interface FoodSuggestion {
+  product_name: string;
+  calories?: number;
+  image_url?: string;
+  source?: string;
+}
+import { searchAllFoodAPIs } from "../../services/foodSearchAggregator";
+
 export default function AddMeal() {
+
+  // Hooks principaux du composant
   const [mealName, setMealName] = useState("");
   const [calories, setCalories] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
@@ -26,9 +39,44 @@ export default function AddMeal() {
   const [mealType, setMealType] = useState("Petit-déjeuner");
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const paramsProcessedRef = useRef(false);
-
   const router = useRouter();
   const params = useLocalSearchParams();
+
+  // Pour la recherche d'aliments (Open Food Facts)
+  const [search, setSearch] = useState("");
+  const [results, setResults] = useState<FoodSuggestion[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [showResults, setShowResults] = useState(false);
+
+  useEffect(() => {
+    if (search.length < 2) {
+      setResults([]);
+      setShowResults(false);
+      return;
+    }
+    setSearching(true);
+    setShowResults(true);
+    const timeout = setTimeout(() => {
+      searchAllFoodAPIs(search)
+        .then((data) => {
+          setResults(data);
+        })
+        .catch(() => setResults([]))
+        .finally(() => setSearching(false));
+    }, 400);
+    return () => clearTimeout(timeout);
+  }, [search]);
+
+  // Quand on sélectionne un aliment de la liste
+  const handleSelectFood = (item: FoodSuggestion) => {
+    setMealName(item.product_name);
+    if (item.calories) {
+      setCalories(Math.round(item.calories).toString());
+    }
+    setResults([]);
+    setSearch(item.product_name);
+    setShowResults(false);
+  };
 
   useEffect(() => {
     if (paramsProcessedRef.current) return;
@@ -174,6 +222,59 @@ export default function AddMeal() {
           </View>
 
           <View style={styles.formContainer}>
+            <View style={{ position: 'relative', marginBottom: 15 }}>
+              <TextInput
+                mode="outlined"
+                label="Rechercher un aliment"
+                value={search}
+                onChangeText={text => {
+                  setSearch(text);
+                  setShowResults(true);
+                }}
+                style={styles.textInput}
+                placeholder="Ex: Pomme, Yaourt, Pain..."
+                outlineColor="#dadada"
+                activeOutlineColor="#FF6A88"
+                left={<TextInput.Icon icon="magnify" />}
+                onFocus={() => setShowResults(true)}
+                autoCorrect={false}
+                autoCapitalize="none"
+              />
+              {showResults && (searching || results.length > 0) && (
+                <View style={styles.suggestionBox}>
+                  {searching && (
+                    <Text style={styles.suggestionLoading}>Recherche...</Text>
+                  )}
+                  {!searching && results.length === 0 && (
+                    <Text style={styles.suggestionEmpty}>Aucun résultat</Text>
+                  )}
+                  {!searching && results.map((item, idx) => (
+                    <TouchableOpacity
+                      key={idx}
+                      style={styles.suggestionItem}
+                      onPress={() => handleSelectFood(item)}
+                    >
+                      {item.image_url ? (
+                        <Image source={{ uri: item.image_url }} style={styles.suggestionImage} />
+                      ) : (
+                        <Ionicons name="fast-food" size={24} color="#FF6A88" style={{ marginRight: 8 }} />
+                      )}
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.suggestionName}>{item.product_name}</Text>
+                        {item.calories && (
+                          <Text style={styles.suggestionKcal}>
+                            {item.calories} kcal / 100g
+                          </Text>
+                        )}
+                        {item.source && (
+                          <Text style={{ color: '#aaa', fontSize: 10 }}>Source: {item.source}</Text>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
             <TextInput
               mode="outlined"
               label="Nom de l'aliment"
@@ -185,7 +286,6 @@ export default function AddMeal() {
               activeOutlineColor="#FF6A88"
               left={<TextInput.Icon icon="food" />}
             />
-
             <TextInput
               mode="outlined"
               label="Calories"
@@ -257,6 +357,59 @@ export default function AddMeal() {
 
 const styles = StyleSheet.create({
   container: {
+      suggestionBox: {
+        position: 'absolute',
+        top: 60,
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#eee',
+        zIndex: 10,
+        maxHeight: 220,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 4,
+        paddingVertical: 4,
+      },
+      suggestionItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderBottomWidth: 1,
+        borderColor: '#f0f0f0',
+      },
+      suggestionImage: {
+        width: 32,
+        height: 32,
+        borderRadius: 6,
+        marginRight: 10,
+        backgroundColor: '#f5f5f5',
+      },
+      suggestionName: {
+        fontWeight: 'bold',
+        fontSize: 15,
+        color: '#333',
+      },
+      suggestionKcal: {
+        color: '#888',
+        fontSize: 12,
+        marginTop: 2,
+      },
+      suggestionLoading: {
+        color: '#888',
+        textAlign: 'center',
+        padding: 10,
+      },
+      suggestionEmpty: {
+        color: '#aaa',
+        textAlign: 'center',
+        padding: 10,
+      },
     flex: 1,
     backgroundColor: "#f5f5f5",
   },

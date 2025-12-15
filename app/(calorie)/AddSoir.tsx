@@ -16,9 +16,55 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { TextInput } from "react-native-paper";
+
+
 import { takePhoto, pickImage, addMeal, MealData } from "../../services/calorie";
 
+
+
+// Types pour Open Food Facts
+interface FoodSuggestion {
+  product_name: string;
+  calories?: number;
+  image_url?: string;
+  source?: string;
+}
+
+import { searchAllFoodAPIs } from "../../services/foodSearchAggregator";
+
 export default function AddSoir() {
+  // Search states
+  const [search, setSearch] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [results, setResults] = useState<FoodSuggestion[]>([]);
+
+  // Handle food selection from suggestions
+  const handleSelectFood = (item: FoodSuggestion) => {
+    setMealName(item.product_name);
+    setCalories(item.calories ? item.calories.toString() : "");
+    setShowResults(false);
+  };
+
+  // Search effect
+  useEffect(() => {
+    let active = true;
+    if (search.length < 2) {
+      setResults([]);
+      setSearching(false);
+      return;
+    }
+    setSearching(true);
+    searchAllFoodAPIs(search).then((res: FoodSuggestion[]) => {
+      if (active) {
+        setResults(res);
+        setSearching(false);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, [search]);
   const [mealName, setMealName] = useState("");
   const [calories, setCalories] = useState("");
   const [photo, setPhoto] = useState<string | null>(null);
@@ -158,6 +204,59 @@ export default function AddSoir() {
           </View>
 
           <View style={styles.formContainer}>
+            <View style={{ position: 'relative', marginBottom: 15 }}>
+              <TextInput
+                mode="outlined"
+                label="Rechercher un aliment"
+                value={search}
+                onChangeText={text => {
+                  setSearch(text);
+                  setShowResults(true);
+                }}
+                style={styles.textInput}
+                placeholder="Ex: Soupe, Sandwich, Poisson..."
+                outlineColor="#dadada"
+                activeOutlineColor="#FF6A88"
+                left={<TextInput.Icon icon="magnify" />}
+                onFocus={() => setShowResults(true)}
+                autoCorrect={false}
+                autoCapitalize="none"
+              />
+              {showResults && (searching || results.length > 0) && (
+                <View style={styles.suggestionBox}>
+                  {searching && (
+                    <Text style={styles.suggestionLoading}>Recherche...</Text>
+                  )}
+                  {!searching && results.length === 0 && (
+                    <Text style={styles.suggestionEmpty}>Aucun résultat</Text>
+                  )}
+                  {!searching && results.map((item, idx) => (
+                    <TouchableOpacity
+                      key={idx}
+                      style={styles.suggestionItem}
+                      onPress={() => handleSelectFood(item)}
+                    >
+                      {item.image_url ? (
+                        <Image source={{ uri: item.image_url }} style={styles.suggestionImage} />
+                      ) : (
+                        <Ionicons name="fast-food" size={24} color="#FF6A88" style={{ marginRight: 8 }} />
+                      )}
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.suggestionName}>{item.product_name}</Text>
+                        {item.calories && (
+                          <Text style={styles.suggestionKcal}>
+                            {item.calories} kcal / 100g
+                          </Text>
+                        )}
+                        {item.source && (
+                          <Text style={{ color: '#aaa', fontSize: 10 }}>Source: {item.source}</Text>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
             <TextInput
               mode="outlined"
               label="Nom de l'aliment"
@@ -169,7 +268,6 @@ export default function AddSoir() {
               activeOutlineColor="#FF6A88"
               left={<TextInput.Icon icon="food" />}
             />
-
             <TextInput
               mode="outlined"
               label="Calories"
@@ -243,6 +341,59 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f5f5f5",
+  },
+  suggestionBox: {
+    position: 'absolute',
+    top: 60,
+    left: 0,
+    right: 0,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#eee',
+    zIndex: 10,
+    maxHeight: 220,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 4,
+    paddingVertical: 4,
+  },
+  suggestionItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderColor: '#f0f0f0',
+  },
+  suggestionImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 6,
+    marginRight: 10,
+    backgroundColor: '#f5f5f5',
+  },
+  suggestionName: {
+    fontWeight: 'bold',
+    fontSize: 15,
+    color: '#333',
+  },
+  suggestionKcal: {
+    color: '#888',
+    fontSize: 12,
+    marginTop: 2,
+  },
+  suggestionLoading: {
+    color: '#888',
+    textAlign: 'center',
+    padding: 10,
+  },
+  suggestionEmpty: {
+    color: '#aaa',
+    textAlign: 'center',
+    padding: 10,
   },
   keyboardView: {
     flex: 1,

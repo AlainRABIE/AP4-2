@@ -16,7 +16,20 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { TextInput } from "react-native-paper";
+
+
 import { takePhoto, pickImage, addMeal, MealData } from "../../services/calorie";
+
+  import { searchAllFoodAPIs } from "../../services/foodSearchAggregator";
+
+
+  type FoodSuggestion = {
+    product_name: string;
+    calories?: number;
+    image_url?: string;
+    source?: string;
+  image_url?: string;
+};
 
 export default function AddMidi() {
   const [mealName, setMealName] = useState("");
@@ -158,6 +171,56 @@ export default function AddMidi() {
           </View>
 
           <View style={styles.formContainer}>
+            <View style={{ position: 'relative', marginBottom: 15 }}>
+              <TextInput
+                mode="outlined"
+                label="Rechercher un aliment"
+                value={search}
+                onChangeText={text => {
+                  setSearch(text);
+                  setShowResults(true);
+                }}
+                style={styles.textInput}
+                placeholder="Ex: Poulet, Riz, Salade..."
+                outlineColor="#dadada"
+                activeOutlineColor="#FF6A88"
+                left={<TextInput.Icon icon="magnify" />}
+                onFocus={() => setShowResults(true)}
+                autoCorrect={false}
+                autoCapitalize="none"
+              />
+              {showResults && (searching || results.length > 0) && (
+                <View style={styles.suggestionBox}>
+                  {searching && (
+                    <Text style={styles.suggestionLoading}>Recherche...</Text>
+                  )}
+                  {!searching && results.length === 0 && (
+                    <Text style={styles.suggestionEmpty}>Aucun résultat</Text>
+                  )}
+                  {!searching && results.map((item, idx) => (
+                    <TouchableOpacity
+                      key={idx}
+                      style={styles.suggestionItem}
+                      onPress={() => handleSelectFood(item)}
+                    >
+                      {item.image_url ? (
+                        <Image source={{ uri: item.image_url }} style={styles.suggestionImage} />
+                      ) : (
+                        <Ionicons name="fast-food" size={24} color="#FF6A88" style={{ marginRight: 8 }} />
+                      )}
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.suggestionName}>{item.product_name}</Text>
+                        {item.nutriments && item.nutriments["energy-kcal_100g"] && (
+                          <Text style={styles.suggestionKcal}>
+                            {item.nutriments["energy-kcal_100g"]} kcal / 100g
+                          </Text>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
             <TextInput
               mode="outlined"
               label="Nom de l'aliment"
@@ -169,7 +232,6 @@ export default function AddMidi() {
               activeOutlineColor="#FF6A88"
               left={<TextInput.Icon icon="food" />}
             />
-
             <TextInput
               mode="outlined"
               label="Calories"
@@ -241,6 +303,59 @@ export default function AddMidi() {
 
 const styles = StyleSheet.create({
   container: {
+      suggestionBox: {
+        position: 'absolute',
+        top: 60,
+        left: 0,
+        right: 0,
+        backgroundColor: '#fff',
+        borderRadius: 10,
+        borderWidth: 1,
+        borderColor: '#eee',
+        zIndex: 10,
+        maxHeight: 220,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 8,
+        elevation: 4,
+        paddingVertical: 4,
+      },
+      suggestionItem: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingVertical: 8,
+        paddingHorizontal: 12,
+        borderBottomWidth: 1,
+        borderColor: '#f0f0f0',
+      },
+      suggestionImage: {
+        width: 32,
+        height: 32,
+        borderRadius: 6,
+        marginRight: 10,
+        backgroundColor: '#f5f5f5',
+      },
+      suggestionName: {
+        fontWeight: 'bold',
+        fontSize: 15,
+        color: '#333',
+      },
+      suggestionKcal: {
+        color: '#888',
+        fontSize: 12,
+        marginTop: 2,
+      },
+      suggestionLoading: {
+        color: '#888',
+        textAlign: 'center',
+        padding: 10,
+      },
+      suggestionEmpty: {
+        color: '#aaa',
+        textAlign: 'center',
+        padding: 10,
+      },
     flex: 1,
     backgroundColor: "#f5f5f5",
   },
