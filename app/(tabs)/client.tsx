@@ -1,8 +1,9 @@
 "";
 
 import { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
 import { useRouter } from 'expo-router';
+import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { db } from '../../firebase/firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
@@ -21,21 +22,21 @@ type Utilisateur = {
 };
 
 export default function UtilisateursScreen() {
-  const router = useRouter();
   const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const router = useRouter();
 
   useEffect(() => {
     async function fetchUtilisateurs() {
       try {
         setLoading(true);
-
+        
         const utilisateursRef = collection(db, 'utilisateurs');
         const q = query(utilisateursRef, where("role", "==", "utilisateur"));
         const querySnapshot = await getDocs(q);
-
+        
         const utilisateursData: Utilisateur[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
@@ -53,7 +54,7 @@ export default function UtilisateursScreen() {
             derniereConnexion: data.derniereConnexion,
           });
         });
-
+        
         setUtilisateurs(utilisateursData);
       } catch (err) {
         console.error("Erreur lors de la récupération des utilisateurs:", err);
@@ -66,7 +67,7 @@ export default function UtilisateursScreen() {
     fetchUtilisateurs();
   }, []);
 
-  const filteredUtilisateurs = utilisateurs.filter(user =>
+  const filteredUtilisateurs = utilisateurs.filter(user => 
     user.nomComplet.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (user.departement && user.departement.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -74,7 +75,7 @@ export default function UtilisateursScreen() {
 
   const formatDate = (timestamp: any) => {
     if (!timestamp) return 'Jamais connecté';
-
+    
     try {
       const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
       return date.toLocaleDateString('fr-FR', {
@@ -97,22 +98,22 @@ export default function UtilisateursScreen() {
 
   const renderUtilisateur = ({ item }: { item: Utilisateur }) => (
     <View style={styles.userCard}>
+      <View style={styles.avatarContainer}>
+        <Image 
+          source={getAvatarSource(item.urlAvatar)}
+          style={styles.avatar}
+          defaultSource={require('../../assets/images/default-avatar.png')}
+        />
+        {item.abonnement && (
+          <View style={[
+            styles.abonnementBadge, 
+            item.abonnement === "plus" ? styles.abonnementPlus : styles.abonnementBasic
+          ]}>
+            <Text style={styles.abonnementText}>{item.abonnement}</Text>
+          </View>
+        )}
+      </View>
       <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-        <View style={styles.avatarContainer}>
-          <Image
-            source={getAvatarSource(item.urlAvatar)}
-            style={styles.avatar}
-            defaultSource={require('../../assets/images/default-avatar.png')}
-          />
-          {item.abonnement && (
-            <View style={[
-              styles.abonnementBadge,
-              item.abonnement === "plus" ? styles.abonnementPlus : styles.abonnementBasic
-            ]}>
-              <Text style={styles.abonnementText}>{item.abonnement}</Text>
-            </View>
-          )}
-        </View>
         <View style={styles.userInfo}>
           <Text style={styles.userName}>{item.nomComplet}</Text>
           <Text style={styles.userEmail}>{item.email}</Text>
@@ -138,12 +139,11 @@ export default function UtilisateursScreen() {
         </View>
         <TouchableOpacity
           style={styles.messageButton}
-          onPress={() => router.push({
-            pathname: '/conversation',
-            params: { userId: item.id, userName: item.nomComplet }
-          })}
+          onPress={() => router.push({ pathname: '/conversation', params: { userId: item.id, userName: item.nomComplet } })}
         >
-          <Text style={{ color: '#059669', fontWeight: 'bold' }}>Message</Text>
+          <Svg width={24} height={24} viewBox="0 0 24 24" fill="none">
+            <Path d="M8 11H8.01M12 11H12.01M16 11H16.01M21 20L17.6757 18.3378C17.4237 18.2118 17.2977 18.1488 17.1656 18.1044C17.0484 18.065 16.9277 18.0365 16.8052 18.0193C16.6672 18 16.5263 18 16.2446 18H6.2C5.07989 18 4.51984 18 4.09202 17.782C3.71569 17.5903 3.40973 17.2843 3.21799 16.908C3 16.4802 3 15.9201 3 14.8V7.2C3 6.07989 3 5.51984 3.21799 5.09202C3.40973 4.71569 3.71569 4.40973 4.09202 4.21799C4.51984 4 5.0799 4 6.2 4H17.8C18.9201 4 19.4802 4 19.908 4.21799C20.2843 4.40973 20.5903 4.71569 20.782 5.09202C21 5.51984 21 6.0799 21 7.2V20Z" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </Svg>
         </TouchableOpacity>
       </View>
     </View>
@@ -152,7 +152,7 @@ export default function UtilisateursScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Liste des Utilisateurs</Text>
-
+      
       <TextInput
         style={styles.searchInput}
         placeholder="Rechercher un utilisateur..."
@@ -160,7 +160,7 @@ export default function UtilisateursScreen() {
         onChangeText={setSearchTerm}
         clearButtonMode="while-editing"
       />
-
+      
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#3b82f6" />
@@ -169,7 +169,7 @@ export default function UtilisateursScreen() {
       ) : error ? (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity
+          <TouchableOpacity 
             style={styles.retryButton}
             onPress={() => {
               setError(null);
@@ -196,15 +196,6 @@ export default function UtilisateursScreen() {
 }
 
 const styles = StyleSheet.create({
-  messageButton: {
-  padding: 10,
-  borderRadius: 20,
-  backgroundColor: '#D1FAE5',
-  alignSelf: 'center',
-  marginLeft: 8,
-  minWidth: 70,
-  alignItems: 'center',
-},
   container: {
     flex: 1,
     padding: 16,
@@ -299,10 +290,10 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   abonnementPlus: {
-    backgroundColor: '#4f46e5',
+    backgroundColor: '#4f46e5', 
   },
   abonnementBasic: {
-    backgroundColor: '#10b981',
+    backgroundColor: '#10b981', 
   },
   abonnementText: {
     color: 'white',
@@ -346,4 +337,19 @@ const styles = StyleSheet.create({
     color: '#9ca3af',
     fontStyle: 'italic',
   },
+  messageButton: {
+    marginLeft: 12,
+    backgroundColor: '#3b82f6',
+    borderRadius: 20,
+    padding: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  // messageIcon supprimé car remplacé par SVG
 });

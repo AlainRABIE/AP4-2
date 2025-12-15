@@ -1,4 +1,5 @@
 
+// Ce fichier a été déplacé depuis app/(tabs)/conversation.tsx
 
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, TextInput, TouchableOpacity, FlatList, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native';
@@ -217,3 +218,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 });
+
+export default ConversationScreen;
