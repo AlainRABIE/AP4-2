@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, Image, TouchableOpacity, ActivityIndicator, TextInput } from 'react-native';
+import { useRouter } from 'expo-router';
 import { db } from '../../firebase/firebaseConfig';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
@@ -20,6 +21,7 @@ type Utilisateur = {
 };
 
 export default function UtilisateursScreen() {
+  const router = useRouter();
   const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -136,7 +138,10 @@ export default function UtilisateursScreen() {
         </View>
         <TouchableOpacity
           style={styles.messageButton}
-          onPress={() => alert(`Envoyer un message à ${item.nomComplet || item.email}`)}
+          onPress={() => router.push({
+            pathname: '/conversation',
+            params: { userId: item.id, userName: item.nomComplet }
+          })}
         >
           <Text style={{ color: '#059669', fontWeight: 'bold' }}>Message</Text>
         </TouchableOpacity>
