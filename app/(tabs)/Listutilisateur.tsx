@@ -200,8 +200,14 @@ export default function UtilisateursScreen() {
           </View>
         </View>
       </View>
-      
+
       <View style={styles.actionButtons}>
+        <TouchableOpacity
+          style={styles.messageButton}
+          onPress={() => Alert.alert('Message', `Envoyer un message à ${item.nomComplet || item.email}`)}
+        >
+          <MaterialIcons name="message" size={18} color="#10B981" />
+        </TouchableOpacity>
         <TouchableOpacity 
           style={styles.editButton}
           onPress={() => router.push(`/client/Editutilisateur?id=${item.id}`)}
@@ -302,6 +308,12 @@ export default function UtilisateursScreen() {
 }
 
 const styles = StyleSheet.create({
+    messageButton: {
+      padding: 8,
+      marginRight: 8,
+      borderRadius: 20,
+      backgroundColor: '#D1FAE5', // vert clair
+    },
   container: {
     flex: 1,
     backgroundColor: '#F8FAFC',

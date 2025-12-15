@@ -29,11 +29,11 @@ export default function UtilisateursScreen() {
     async function fetchUtilisateurs() {
       try {
         setLoading(true);
-        
+
         const utilisateursRef = collection(db, 'utilisateurs');
         const q = query(utilisateursRef, where("role", "==", "utilisateur"));
         const querySnapshot = await getDocs(q);
-        
+
         const utilisateursData: Utilisateur[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
@@ -51,7 +51,7 @@ export default function UtilisateursScreen() {
             derniereConnexion: data.derniereConnexion,
           });
         });
-        
+
         setUtilisateurs(utilisateursData);
       } catch (err) {
         console.error("Erreur lors de la récupération des utilisateurs:", err);
@@ -64,7 +64,7 @@ export default function UtilisateursScreen() {
     fetchUtilisateurs();
   }, []);
 
-  const filteredUtilisateurs = utilisateurs.filter(user => 
+  const filteredUtilisateurs = utilisateurs.filter(user =>
     user.nomComplet.toLowerCase().includes(searchTerm.toLowerCase()) ||
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (user.departement && user.departement.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -72,7 +72,7 @@ export default function UtilisateursScreen() {
 
   const formatDate = (timestamp: any) => {
     if (!timestamp) return 'Jamais connecté';
-    
+
     try {
       const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
       return date.toLocaleDateString('fr-FR', {
@@ -95,47 +95,51 @@ export default function UtilisateursScreen() {
 
   const renderUtilisateur = ({ item }: { item: Utilisateur }) => (
     <View style={styles.userCard}>
-      <View style={styles.avatarContainer}>
-        <Image 
-          source={getAvatarSource(item.urlAvatar)}
-          style={styles.avatar}
-          defaultSource={require('../../assets/images/default-avatar.png')}
-        />
-        {item.abonnement && (
-          <View style={[
-            styles.abonnementBadge, 
-            item.abonnement === "plus" ? styles.abonnementPlus : styles.abonnementBasic
-          ]}>
-            <Text style={styles.abonnementText}>{item.abonnement}</Text>
-          </View>
-        )}
-      </View>
-      
-      <View style={styles.userInfo}>
-        <Text style={styles.userName}>{item.nomComplet}</Text>
-        <Text style={styles.userEmail}>{item.email}</Text>
-        
-        <View style={styles.detailsContainer}>
-          {item.age && (
-            <Text style={styles.detailText}>{item.age} ans</Text>
-          )}
-          {item.sexe && (
-            <Text style={styles.detailText}>{item.sexe === 'homme' ? '♂️' : '♀️'} {item.sexe}</Text>
-          )}
-          {item.departement && (
-            <Text style={styles.detailText}>📍 {item.departement}</Text>
+      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+        <View style={styles.avatarContainer}>
+          <Image
+            source={getAvatarSource(item.urlAvatar)}
+            style={styles.avatar}
+            defaultSource={require('../../assets/images/default-avatar.png')}
+          />
+          {item.abonnement && (
+            <View style={[
+              styles.abonnementBadge,
+              item.abonnement === "plus" ? styles.abonnementPlus : styles.abonnementBasic
+            ]}>
+              <Text style={styles.abonnementText}>{item.abonnement}</Text>
+            </View>
           )}
         </View>
-        
-        {item.poids && item.taille && (
-          <Text style={styles.physicalInfo}>
-            {item.poids} kg • {item.taille} cm
+        <View style={styles.userInfo}>
+          <Text style={styles.userName}>{item.nomComplet}</Text>
+          <Text style={styles.userEmail}>{item.email}</Text>
+          <View style={styles.detailsContainer}>
+            {item.age && (
+              <Text style={styles.detailText}>{item.age} ans</Text>
+            )}
+            {item.sexe && (
+              <Text style={styles.detailText}>{item.sexe === 'homme' ? '♂️' : '♀️'} {item.sexe}</Text>
+            )}
+            {item.departement && (
+              <Text style={styles.detailText}>📍 {item.departement}</Text>
+            )}
+          </View>
+          {item.poids && item.taille && (
+            <Text style={styles.physicalInfo}>
+              {item.poids} kg • {item.taille} cm
+            </Text>
+          )}
+          <Text style={styles.lastConnection}>
+            Dernière connexion: {formatDate(item.derniereConnexion)}
           </Text>
-        )}
-        
-        <Text style={styles.lastConnection}>
-          Dernière connexion: {formatDate(item.derniereConnexion)}
-        </Text>
+        </View>
+        <TouchableOpacity
+          style={styles.messageButton}
+          onPress={() => alert(`Envoyer un message à ${item.nomComplet || item.email}`)}
+        >
+          <Text style={{ color: '#059669', fontWeight: 'bold' }}>Message</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -143,7 +147,7 @@ export default function UtilisateursScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Liste des Utilisateurs</Text>
-      
+
       <TextInput
         style={styles.searchInput}
         placeholder="Rechercher un utilisateur..."
@@ -151,7 +155,7 @@ export default function UtilisateursScreen() {
         onChangeText={setSearchTerm}
         clearButtonMode="while-editing"
       />
-      
+
       {loading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color="#3b82f6" />
@@ -160,7 +164,7 @@ export default function UtilisateursScreen() {
       ) : error ? (
         <View style={styles.errorContainer}>
           <Text style={styles.errorText}>{error}</Text>
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.retryButton}
             onPress={() => {
               setError(null);
@@ -187,6 +191,15 @@ export default function UtilisateursScreen() {
 }
 
 const styles = StyleSheet.create({
+  messageButton: {
+  padding: 10,
+  borderRadius: 20,
+  backgroundColor: '#D1FAE5',
+  alignSelf: 'center',
+  marginLeft: 8,
+  minWidth: 70,
+  alignItems: 'center',
+},
   container: {
     flex: 1,
     padding: 16,
@@ -281,10 +294,10 @@ const styles = StyleSheet.create({
     borderColor: 'white',
   },
   abonnementPlus: {
-    backgroundColor: '#4f46e5', 
+    backgroundColor: '#4f46e5',
   },
   abonnementBasic: {
-    backgroundColor: '#10b981', 
+    backgroundColor: '#10b981',
   },
   abonnementText: {
     color: 'white',
